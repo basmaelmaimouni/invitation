@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دعوة زفاف | أميمة وصفوان</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti Library for Sparkles / Confetti animation -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-color: #f7f6f0;
+      --card-bg: #fcfbf7;
+      --primary-color: #8fa189; /* Sage green */
+      --dark-green: #5a6b54;
+      --text-color: #4a5347;
+      --accent-color: #7a8a75;
+      --gold-light: #e2ded4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Cairo', 'Amiri', serif;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 20px 10px;
+      position: relative;
+    }
+
+    /* Falling sparkles container on envelope screen */
+    #sparkles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 101;
+      overflow: hidden;
+    }
+
+    .sparkle-particle {
+      position: absolute;
+      top: -20px;
+      background: rgba(143, 161, 137, 0.7);
+      border-radius: 50%;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0.1;
+      }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ---------------- COVER / ENVELOPE SECTION ---------------- */
+    .envelope-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg-color);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .envelope-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .envelope-box {
+      width: 320px;
+      height: 220px;
+      background: var(--card-bg);
+      border: 2px solid var(--primary-color);
+      border-radius: 12px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .envelope-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-top: 110px solid var(--gold-light);
+      transform-origin: top;
+      transition: transform 0.6s ease;
+      z-index: 2;
+    }
+
+    .envelope-box.open::before {
+      transform: rotateX(180deg);
+    }
+
+    .monogram {
+      font-family: 'Amiri', serif;
+      font-size: 38px;
+      color: var(--dark-green);
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+      z-index: 3;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .open-btn {
+      margin-top: 35px;
+      padding: 14px 45px;
+      background-color: var(--dark-green);
+      color: #ffffff;
+      border: none;
+      border-radius: 30px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(90, 107, 84, 0.3);
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    .open-btn:hover {
+      background-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* ---------------- MAIN INVITATION CONTENT ---------------- */
+    .card {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      overflow: hidden;
+      border: 1px solid rgba(143, 161, 137, 0.2);
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+    }
+
+    .card.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Image Wrapper with Soft Shimmer & Gentle Zoom Effect */
+    .img-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .invitation-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 6s ease-out;
+      animation: gentleZoom 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes gentleZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.04); }
+    }
+
+    /* Light shimmer effect moving over the image */
+    .img-wrapper::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        rgba(255, 255, 255, 0) 20%,
+        rgba(255, 255, 255, 0.25) 50%,
+        rgba(255, 255, 255, 0) 80%
+      );
+      transform: rotate(30deg);
+      animation: shimmer 6s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(30deg); }
+      100% { transform: translateX(100%) rotate(30deg); }
+    }
+
+    .details-section {
+      padding: 25px 20px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(252,251,247,0) 0%, rgba(247,246,240,0.5) 100%);
+    }
+
+    .details-title {
+      font-family: 'Amiri', serif;
+      font-size: 24px;
+      color: var(--dark-green);
+      margin-bottom: 20px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .details-title::after {
+      content: '';
+      display: block;
+      width: 50%;
+      height: 2px;
+      background-color: var(--primary-color);
+      margin: 6px auto 0;
+      border-radius: 2px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .info-item {
+      background: #ffffff;
+      padding: 12px 15px;
+      border-radius: 12px;
+      border: 1px solid var(--gold-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.3s ease;
+    }
+
+    .info-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: var(--dark-green);
+      font-size: 15px;
+    }
+
+    .info-value {
+      color: var(--text-color);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .map-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background-color: transparent;
+      color: var(--dark-green);
+      border: 2px solid var(--dark-green);
+      border-radius: 12px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .map-btn:hover {
+      background-color: var(--dark-green);
+      color: #ffffff;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #8a9486;
+      line-height: 1.6;
+    }
+
+    /* Floating Music Control Button */
+    .music-control {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: var(--dark-green);
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      cursor: pointer;
+      z-index: 90;
+      border: none;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.3s ease;
+    }
+
+    .music-control.visible {
+      opacity: 1;
+    }
+
+    .music-control:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SPARKLES ANIMATION CONTAINER (BEFORE OPENING) -->
+  <div id="sparkles-container"></div>
+
+  <!-- AUDIO ELEMENT (Zid l-audio dyalk hna, sami l-file 'music.mp3') -->
+  <audio id="weddingMusic" loop>
+    <source src="wedding song.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- MUSIC TOGGLE BUTTON -->
+  <button class="music-control" id="musicBtn" onclick="toggleMusic()" title="تشغيل / إيقاف الموسيقى">
+    🎵
+  </button>
+
+  <!-- SCREEN 1: ENVELOPE / COVER -->
+  <div class="envelope-screen" id="envelopeScreen">
+    <div class="envelope-box" id="envelopeBox">
+      <div class="monogram">S&O</div>
+    </div>
+    <button class="open-btn" onclick="openInvitation()">اضغط هنا</button>
+  </div>
+
+  <!-- SCREEN 2: INVITATION CONTENT -->
+  <div class="container">
+    <div class="card" id="invitationCard">
+      <!-- Animated Image Container -->
+      <div class="img-wrapper">
+        <img src="Saoumane.jpeg" alt="دعوة زفاف أميمة وصفوان" class="invitation-img">
+      </div>
+
+      <!-- Details Section -->
+      <div class="details-section">
+        <h2 class="details-title">تفاصيل الحفل</h2>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">📅 التاريخ:</span>
+            <span class="info-value">الجمعة 25 ديسمبر 2026</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">⏰ الوقت:</span>
+            <span class="info-value">18:00 مساءً</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">📍 المكان:</span>
+            <span class="info-value">قصر الياقوت (Palacio Alyakout)</span>
+          </div>
+        </div>
+
+        <!-- Google Maps Button -->
+        <a href="https://maps.app.goo.gl/YVW9RiRqqBDTdzmf8" target="_blank" class="map-btn">
+          <span>موقع القاعة على الخريطة (Google Maps)</span>
+        </a>
+
+        <div class="footer-note">
+          <p>• نوماً هنيئاً لأطفالكم 📵</p>
+          <p>• ممنوع التصوير 📷</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Create falling sparkles on the cover
+    const sparklesContainer = document.getElementById('sparkles-container');
+    const colors = ['#8fa189', '#b2c2ac', '#e2ded4', '#d4cebe'];
+
+    for (let i = 0; i < 35; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.classList.add('sparkle-particle');
+      
+      const size = Math.random() * 8 + 4;
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
+      sparkle.style.left = `${Math.random() * 100}vw`;
+      sparkle.style.animationDuration = `${Math.random() * 3 + 3}s`;
+      sparkle.style.animationDelay = `${Math.random() * 3}s`;
+      sparkle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      sparklesContainer.appendChild(sparkle);
+    }
+
+    // 2. Open Invitation Function
+    function openInvitation() {
+      const envelope = document.getElementById('envelopeScreen');
+      const envelopeBox = document.getElementById('envelopeBox');
+      const card = document.getElementById('invitationCard');
+      const music = document.getElementById('weddingMusic');
+      const musicBtn = document.getElementById('musicBtn');
+
+      // Animate envelope opening flap
+      envelopeBox.classList.add('open');
+
+      // Play Background Music
+      music.play().catch(err => console.log('Autoplay prevented:', err));
+      musicBtn.classList.add('visible');
+
+      // Trigger Confetti / Sparkles explosion when opening
+      setTimeout(() => {
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#8fa189', '#5a6b54', '#e2ded4', '#ffffff']
+          });
+        }
+      }, 300);
+
+      // Hide cover screen and reveal card
+      setTimeout(() => {
+        envelope.classList.add('hidden');
+        sparklesContainer.style.display = 'none';
+        card.classList.add('show');
+      }, 700);
+    }
+
+    // 3. Toggle Music Play/Pause
+    function toggleMusic() {
+      const music = document.getElementById('weddingMusic');
+      const musicBtn = document.getElementById('musicBtn');
+
+      if (music.paused) {
+        music.play();
+        musicBtn.innerHTML = '🎵';
+      } else {
+        music.pause();
+        musicBtn.innerHTML = '🔇';
+      }
+    }
+  </script>
+</body>
+</html>
